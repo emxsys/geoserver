@@ -218,7 +218,7 @@ thickness for the main line and a 1 pixel width for the perpendicular hatches.
 Code
 ~~~~
 
-.. code-block:: css 
+.. code-block:: scss
    :linenos:
 
     * { 
@@ -255,7 +255,7 @@ Without using the dash array the lines would be densely populated with dots, eac
 Code
 ~~~~
 
-.. code-block:: css
+.. code-block:: scss
    :linenos:
 
     * { 
@@ -311,7 +311,7 @@ Code
 ~~~~
 
 
-.. code-block:: css
+.. code-block:: scss
    :linenos:
 
     * { 
@@ -421,7 +421,7 @@ Code
       stroke: red;
       label: [name];
       font-fill: black;
-      -gt-label-follow-line: true;
+      label-follow-line: true;
     }
 
 Details
@@ -430,7 +430,7 @@ Details
 As the :ref:`css_cookbook_lines_defaultlabel` example showed, the default label behavior isn't optimal.
 
 This example is similar to the :ref:`css_cookbook_lines_defaultlabel` example with the exception of **line 5** where the
-"-gt-label-follow-line" option is specified, which forces the labels to strickly follow the line.
+"label-follow-line" option is specified, which forces the labels to strickly follow the line.
 
 Not all labels are visible partly because of conflict resolution, and partly because the renderer cannot find a line
 segment long and "straight" enough to paint the label (labels are not painted over sharp turns by default).
@@ -457,10 +457,10 @@ Code
       stroke: red;
       label: [name];
       font-fill: black;
-      -gt-label-follow-line: true;
-      -gt-label-max-angle-delta: 90;
-      -gt-label-max-displacement: 400;
-      -gt-label-repeat: 150;
+      label-follow-line: true;
+      label-max-angle-delta: 90;
+      label-max-displacement: 400;
+      label-repeat: 150;
     }
 
 Details
@@ -497,10 +497,10 @@ Code
       font-size: 10;
       halo-color: white;
       halo-radius: 1;
-      -gt-label-follow-line: true;
-      -gt-label-max-angle-delta: 90;
-      -gt-label-max-displacement: 400;
-      -gt-label-repeat: 150;
+      label-follow-line: true;
+      label-max-angle-delta: 90;
+      label-max-displacement: 400;
+      label-repeat: 150;
     }
 
 Details

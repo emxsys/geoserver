@@ -4,16 +4,16 @@
  */
 package org.geoserver.opensearch.eo;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * A generic request by collection and product id
- * 
+ *
  * @author Andrea Aime - GeoSolutions
  */
 public class AbstractProductRequest {
-    
+
     String parentId;
 
     String id;

@@ -4,8 +4,8 @@
  */
 package org.geoserver.opensearch.eo;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.geotools.feature.FeatureCollection;
 
 /**
@@ -28,16 +28,14 @@ public class SearchResults {
         this.totalResults = totalResults;
     }
 
-    /**
-     * The originating request
-     */
+    /** The originating request */
     public SearchRequest getRequest() {
         return request;
     }
 
     /**
      * The search results
-     * 
+     *
      * @return
      */
     public FeatureCollection getResults() {
@@ -46,6 +44,7 @@ public class SearchResults {
 
     /**
      * Total number of matched features
+     *
      * @return
      */
     public int getTotalResults() {
@@ -56,5 +55,4 @@ public class SearchResults {
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
-
 }

@@ -6,21 +6,20 @@
 package org.geoserver.notification;
 
 import org.geoserver.notification.common.Notification;
-import org.geotools.factory.Hints;
 import org.geotools.filter.expression.PropertyAccessor;
 import org.geotools.filter.expression.PropertyAccessorFactory;
+import org.geotools.util.factory.Hints;
 
 public class NotificationPropertyAccessorFactory implements PropertyAccessorFactory {
 
     private static final NotificationPropertyAccessor INSTANCE = new NotificationPropertyAccessor();
 
     @Override
-    public PropertyAccessor createPropertyAccessor(Class<?> type, String xpath, Class<?> target,
-            Hints hints) {
+    public PropertyAccessor createPropertyAccessor(
+            Class<?> type, String xpath, Class<?> target, Hints hints) {
         if (Notification.class.isAssignableFrom(type)) {
             return INSTANCE;
         }
         return null;
     }
-
 }

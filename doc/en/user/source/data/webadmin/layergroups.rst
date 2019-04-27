@@ -32,7 +32,7 @@ If a layer is included in any non *single* mode group, it will no longer be list
 +------------------------+-------+-------------------+----------------+------------------+
 | Named Tree             | named | yes               | lists children |                  |
 +------------------------+-------+-------------------+----------------+------------------+
-| Contrainer Tree        |       | yes               | lists children |                  |
+| Container Tree         |       | yes               | lists children |                  |
 +------------------------+-------+-------------------+----------------+------------------+
 | Earth Observation Tree | named | yes               | lists children | has root layer   |
 +------------------------+-------+-------------------+----------------+------------------+
@@ -75,6 +75,12 @@ A layer group can be added by clicking the :guilabel:`Add Layer Group...` button
 
    Dialog for adding a layer group to a layer group
 
+A style group can be added by clicking the :guilabel:`Add Style Group...` button at the top of the table. From the list of styles, select the :ref:`style group <sld_working>` to be added by clicking its name. The selected style will be appended to the bottom of the :guilabel:`publishable` list.
+
+.. figure:: img/data_layergroups_add_stylegroup.png
+
+   Dialog for adding a style group to a layer group
+
 You can view layer groups in the :ref:`layerpreview` section of the web admin.
 
 .. figure:: img/data_layergroups_tasmania.png
@@ -112,3 +118,14 @@ To remove a layer group, select it by clicking the checkbox next to the layer gr
 .. figure:: img/data_layergroups_delete.png
   
    Removing a layer group
+
+Layer Group Keywords
+--------------------
+
+Is possible to associate a layer group with some keywords that will be used to assist catalog searching. 
+ 
+.. figure:: img/data_layergroups_keywords.png
+  
+   Layer groups keywords editor
+
+Layer groups keywords will no be merged with contained layers keywords but keywords of a layer group should be logically inherited by contained layers.

@@ -5,6 +5,7 @@
       "geometry": null,
       "id": "cc.1",
       "properties": {
+        "@featureType": "firstParentFeature",
         "nestedFeature": [
           {
             "someAttribute": "string_one"
@@ -19,28 +20,29 @@
     {
       "geometry": null,
       "id": "cc.2",
-      "properties": {},
+      "properties": {"@featureType": "firstParentFeature"},
       "type": "Feature"
     },
     {
       "geometry": null,
       "id": "cc.3",
-      "properties": {},
+      "properties": {"@featureType": "firstParentFeature"},
       "type": "Feature"
     },
     {
       "geometry": null,
       "id": "cc.4",
-      "properties": {},
+      "properties": {"@featureType": "firstParentFeature"},
       "type": "Feature"
     },
     {
       "geometry": null,
       "id": "cc.5",
-      "properties": {},
+      "properties": {"@featureType": "firstParentFeature"},
       "type": "Feature"
     }
   ],
   "totalFeatures": "unknown",
+  "numberReturned": 5,
   "type": "FeatureCollection"
 }

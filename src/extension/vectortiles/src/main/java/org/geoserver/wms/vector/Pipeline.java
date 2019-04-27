@@ -5,39 +5,35 @@
 package org.geoserver.wms.vector;
 
 import com.google.common.base.Preconditions;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
 
-/**
- * A chainable unary operation on a geometry.
- *
- */
-abstract class Pipeline {
+/** A chainable unary operation on a geometry. */
+public abstract class Pipeline {
 
     protected static final Geometry EMPTY = new GeometryFactory().createPoint((Coordinate) null);
 
-    /**
-     * Pipeline terminator which returns the geometry without change.
-     */
-    static final Pipeline END = new Pipeline() {
+    /** Pipeline terminator which returns the geometry without change. */
+    static final Pipeline END =
+            new Pipeline() {
 
-        @Override
-        protected final Geometry execute(Geometry geom) {
-            return geom;
-        }
+                @Override
+                public final Geometry execute(Geometry geom) {
+                    return geom;
+                }
 
-        @Override
-        protected final Geometry _run(Geometry geom) {
-            throw new UnsupportedOperationException();
-        }
-
-    };
+                @Override
+                protected final Geometry _run(Geometry geom) {
+                    throw new UnsupportedOperationException();
+                }
+            };
 
     private Pipeline next = END;
 
     /**
      * Set the next operation in the pipeline
+     *
      * @param step
      */
     void setNext(Pipeline step) {
@@ -47,11 +43,12 @@ abstract class Pipeline {
 
     /**
      * Execute pipeline including all downstream pipelines.
+     *
      * @param geom
      * @return
      * @throws Exception
      */
-    Geometry execute(Geometry geom) throws Exception {
+    public Geometry execute(Geometry geom) throws Exception {
         Preconditions.checkNotNull(next, getClass().getName());
         Geometry g = _run(geom);
         if (g == null || g.isEmpty()) {
@@ -61,7 +58,8 @@ abstract class Pipeline {
     }
 
     /**
-     * Implementation of the pipeline.  A unary operation on a geometry.
+     * Implementation of the pipeline. A unary operation on a geometry.
+     *
      * @param geom
      * @return
      * @throws Exception

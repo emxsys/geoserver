@@ -4,8 +4,8 @@
  */
 package org.geoserver.opensearch.eo;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * Represents the result of a search for metadata on a collection or product
@@ -36,5 +36,4 @@ public class MetadataResults {
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
-
 }

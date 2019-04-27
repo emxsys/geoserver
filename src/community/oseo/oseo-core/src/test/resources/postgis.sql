@@ -6,8 +6,10 @@ drop table if exists granule;
 drop table if exists collection_ogclink;
 drop table if exists product_ogclink;
 drop table if exists product_metadata;
+drop table if exists product_thumb;
 drop table if exists product;
 drop table if exists collection_metadata;
+drop table if exists collection_layer;
 drop table if exists collection;
 
 -- the collections and the attributes describing them
@@ -16,7 +18,7 @@ create table collection (
   "name" varchar,
   "primary" boolean,
   "htmlDescription" text,
-  "footprint" geography(Polygon, 4326),
+  "footprint" geometry(Polygon, 4326),
   "timeStart" timestamp,
   "timeEnd" timestamp,
   "productCqlFilter" varchar,
@@ -26,7 +28,7 @@ create table collection (
   "eoPlatform" varchar,
   "eoPlatformSerialIdentifier" varchar,
   "eoInstrument" varchar,
-  "eoSensorType" varchar check ("eoSensorType" in ('OPTICAL', 'RADAR', 'ALTIMETRIC', 'ATMOSPHERIC', 'LIMB')),
+  "eoSensorType" varchar, -- this is configurable, so no checks on values anymore
   "eoCompositeType" varchar,
   "eoProcessingLevel" varchar,
   "eoOrbitType" varchar,
@@ -39,7 +41,7 @@ create table collection (
 -- index all (really, this is a search engine)
 -- manually generated indexes
 create index "idx_collection_footprint" on collection using GIST("footprint");
--- the following indexes have been generated adding
+-- the following indexes have been generated calling
 -- SELECT 'CREATE INDEX "idx_' || table_name || '_' || column_name || '" ON ' || table_name || ' ("' || column_name || '");'   FROM information_schema.columns WHERE table_schema = current_schema() and table_name = 'collection' and (column_name like 'eo%' or column_name like 'opt%' or column_name like 'sar%' or column_name like 'time%');
 CREATE INDEX "idx_collection_timeStart" ON collection ("timeStart");
 CREATE INDEX "idx_collection_timeEnd" ON collection ("timeEnd");
@@ -58,7 +60,21 @@ CREATE INDEX "idx_collection_eoSecurityConstraints" ON collection ("eoSecurityCo
 CREATE INDEX "idx_collection_eoDissemination" ON collection ("eoDissemination");
 CREATE INDEX "idx_collection_eoAcquisitionStation" ON collection ("eoAcquisitionStation");
 
--- the iso metadata storage (large files, not used for search, thus separate table)
+-- the layer publishing information, if any
+create table collection_layer (
+  "lid" serial primary key,
+  "cid" int references collection("id") on delete cascade,
+  "workspace" varchar,
+  "layer" varchar,
+  "separateBands" boolean,
+  "bands" varchar,
+  "browseBands" varchar,
+  "heterogeneousCRS" boolean,
+  "mosaicCRS" varchar,
+  "defaultLayer" boolean
+);
+
+-- the iso metadata storage (large text, not used for search, thus separate table)
 create table collection_metadata (
   "mid" int primary key references collection("id"),
   "metadata" text
@@ -68,15 +84,16 @@ create table collection_metadata (
 create table product (
   "id" serial primary key,
   "htmlDescription" text,
-  "footprint" geography(Polygon, 4326),
+  "footprint" geometry(Polygon, 4326),
   "timeStart" timestamp,
   "timeEnd" timestamp,
   "originalPackageLocation" varchar,
   "originalPackageType" varchar,
   "thumbnailURL" varchar,
   "quicklookURL" varchar,
+  "crs" varchar,
   "eoIdentifier" varchar unique,
-  "eoParentIdentifier" varchar references collection("eoIdentifier"),
+  "eoParentIdentifier" varchar references collection("eoIdentifier") on delete cascade,
   "eoProductionStatus" varchar,
   "eoAcquisitionType" varchar check ("eoAcquisitionType" in ('NOMINAL', 'CALIBRATION', 'OTHER')),
   "eoOrbitNumber" int,
@@ -111,8 +128,16 @@ create table product (
   "sarMaximumIncidenceAngle" float,
   "sarDopplerFrequency" float,
   "sarIncidenceAngleVariation" float,
-  "eoResolution" float
+  "eoResolution" float,
+  "atmVerticalRange" float[],
+  "atmVerticalResolution" float[],
+  "atmSpecies" varchar[],
+  "atmSpeciesError" float[],
+  "atmUnit" varchar[],
+  "atmAlgorithmName" varchar[],
+  "atmAlgorithmVersion" varchar[]
 );
+
 -- index all (really, this is a search engine)
 -- manually generated indexes
 create index "idx_product_footprint" on product using GIST("footprint");
@@ -156,23 +181,30 @@ create index "idx_product_footprint" on product using GIST("footprint");
  CREATE INDEX "idx_product_sarDopplerFrequency" ON product ("sarDopplerFrequency");
  CREATE INDEX "idx_product_sarIncidenceAngleVariation" ON product ("sarIncidenceAngleVariation");
  CREATE INDEX "idx_product_eoResolution" ON product ("eoResolution");
+ CREATE INDEX "idx_product_atmVerticalRange" on product using GIN("atmVerticalRange");
+ CREATE INDEX "idx_product_atmVerticalResolution" on product using GIN("atmVerticalResolution");
+ CREATE INDEX "idx_product_atmSpecies" on product using GIN("atmSpecies");
+ CREATE INDEX "idx_product_atmSpeciesError" on product using GIN("atmSpeciesError");
+ CREATE INDEX "idx_product_atmAlgorithmName" on product using GIN("atmAlgorithmName");
+ CREATE INDEX "idx_product_atmAlgorithmVersion" on product using GIN("atmAlgorithmVersion");
+ 
 
  -- the eo metadata storage (large files, not used for search, thus separate table)
 create table product_metadata (
-  "mid" int primary key references product("id"),
+  "mid" int primary key references product("id") on delete cascade,
   "metadata" text
 );
 
 -- the eo thumbs storage (small binary files, not used for search, thus separate table)
 create table product_thumb (
-	"tid" int primary key references product("id"),
+	"tid" int primary key references product("id") on delete cascade,
 	"thumb" bytea
 );
 
 -- links for collections
 create table collection_ogclink (
   "lid" serial primary key,
-  "collection_id" int references collection("id"),
+  "collection_id" int references collection("id") on delete cascade,
   "offering" varchar,
   "method" varchar,
   "code" varchar,
@@ -183,7 +215,7 @@ create table collection_ogclink (
 -- links for products
 create table product_ogclink (
   "lid" serial primary key,
-  "product_id" int references product("id"),
+  "product_id" int references product("id") on delete cascade,
   "offering" varchar,
   "method" varchar,
   "code" varchar,
@@ -194,7 +226,11 @@ create table product_ogclink (
 -- the granules table (might be abstract, and we can use partitioning)
 create table granule (
   "gid" serial primary key,
-  product_id int references product("id"),
-  location varchar,
-  the_geom geometry(Polygon, 4326)
+  "product_id" int not null references product("id") on delete cascade,
+  "band" varchar,
+  "location" varchar not null,
+  "the_geom" geometry(Polygon, 4326) not null
 );
+
+-- manually generated indexes
+CREATE INDEX "idx_granule_the_geom" ON granule USING GIST("the_geom");

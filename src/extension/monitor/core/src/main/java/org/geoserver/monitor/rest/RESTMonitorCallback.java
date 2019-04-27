@@ -5,14 +5,10 @@
  */
 package org.geoserver.monitor.rest;
 
-import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.io.FilenameUtils;
 import org.geoserver.monitor.Monitor;
 import org.geoserver.monitor.RequestData;
 import org.geoserver.monitor.RequestData.Category;
@@ -24,39 +20,40 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class RESTMonitorCallback extends DispatcherCallbackAdapter {
-    
+
     static final Logger LOGGER = Logging.getLogger(RESTMonitorCallback.class);
 
     Monitor monitor;
-    
+
     @Autowired
     public RESTMonitorCallback(Monitor monitor) {
         this.monitor = monitor;
     }
-    
-    public void init(HttpServletRequest request, HttpServletResponse response) {
-        RequestData data = monitor.current();
-        if (data == null) {
-            //will happen in cases where the filter is not active
-            return;
-        }
-        
-        data.setCategory(Category.REST);
-        if (request.getPathInfo() != null) {
-            String resource = Paths.get(request.getPathInfo()).getFileName().toString();
-            resource = FilenameUtils.getBaseName(resource);
-            data.getResources().add(resource);
-        }
-        monitor.update();
-    }
 
-    public void dispatched(HttpServletRequest request, HttpServletResponse response, Object handler) {
+    public void init(HttpServletRequest request, HttpServletResponse response) {
         RequestData data = monitor.current();
         if (data == null) {
             // will happen in cases where the filter is not active
             return;
         }
-        
+
+        data.setCategory(Category.REST);
+        if (request.getPathInfo() != null) {
+            String resource = request.getPathInfo();
+            final String[] pathParts = resource.split("/");
+            data.getResources().add(pathParts[pathParts.length - 1]);
+        }
+        monitor.update();
+    }
+
+    public void dispatched(
+            HttpServletRequest request, HttpServletResponse response, Object handler) {
+        RequestData data = monitor.current();
+        if (data == null) {
+            // will happen in cases where the filter is not active
+            return;
+        }
+
         try {
             // do not import these classes, dynamic lookup allows to break the dependency
             // on restconfig at runtime
@@ -65,11 +62,11 @@ public class RESTMonitorCallback extends DispatcherCallbackAdapter {
                     || controllerBean instanceof org.geoserver.rest.AbstractGeoServerController) {
                 data.setService("RESTConfig");
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             // no problem, happens if restconfig is not in the classpath
             LOGGER.log(Level.FINE, "Error finding out if the call is a restconfig one", e);
         }
-        
+
         monitor.update();
     }
 }

@@ -6,11 +6,17 @@ var source = new ol.source.ImageWMS({
   url: "${baseUrl}/wms",
 </#if>
   params: {
+<#if previewStyleGroup>
+    'SLD': '${styleUrl}',
+<#else>
     'LAYERS': '${layer}',
     'STYLES': '${style}',
+</#if>
     'FORMAT': 'image/png',
-    'FORMAT_OPTIONS': "layout:css-legend;fontAntiAliasing:true",
-    'RANDOM': ${cachebuster?c}
+    'FORMAT_OPTIONS': "layout:style-editor-legend;fontAntiAliasing:true",
+    'RANDOM': ${cachebuster?c},
+    'LEGEND_OPTIONS': 'forceLabels:on;fontAntiAliasing:true',
+    'EXCEPTIONS': 'application/vnd.ogc.se_inimage'
   },
   serverType: 'geoserver',
   ratio: 1
@@ -39,13 +45,15 @@ map.getView().on('change:resolution', function(evt) {
   var dpi = 25.4 / 0.28;
   var mpu = ol.proj.METERS_PER_UNIT[units];
   var scale = Math.round(res * mpu * 39.37 * dpi);
-  scaleControl.innerHTML =  'Scale = 1 : ' + scale;
+  scaleControl.innerHTML =  'Scale = 1 : ' + scale.toLocaleString();
 });
 
 map.getView().fit(extent, map.getSize());
 
-if (!window.olUpdate) {
-  window.olUpdate = function(id, params) {
-    source.updateParams(params);
-  };
-}
+window.olMap = map;
+
+window.olUpdate = function(id, params) {
+  source.updateParams(params);
+};
+
+window.resizeStylePage();

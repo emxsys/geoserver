@@ -8,41 +8,32 @@ package org.geoserver.ows;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLDecoder;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
-import org.geotools.data.DataUtilities;
+import org.geotools.util.URLs;
 import org.springframework.web.context.support.ServletContextResourceLoader;
 
 /**
  * Controller which publishes styles through a web interface.
- * <p>
- * To use this controller, it should be mapped to a particular url in the url mapping of the spring dispatcher servlet.
- * 
+ *
+ * <p>To use this controller, it should be mapped to a particular url in the url mapping of the
+ * spring dispatcher servlet.
+ *
  * @author Alex Goudine, Boundless
  */
 public class StylePublisher extends AbstractURLPublisher {
-    /**
-     * Resource loader
-     */
+    /** Resource loader */
     protected Catalog catalog;
 
-    /**
-     * Servlet resource loader
-     */
+    /** Servlet resource loader */
     protected ServletContextResourceLoader scloader;
 
-    /**
-     * Creates the new file publisher.
-     * 
-     * @param loader The loader used to locate files.
-     */
+    /** Creates the new file publisher. */
     public StylePublisher(Catalog catalog) {
         this.catalog = catalog;
     }
@@ -81,14 +72,14 @@ public class StylePublisher extends AbstractURLPublisher {
                 // global style
                 resource = data.getStyles(stylePath);
             }
-            
+
             switch (resource.getType()) {
-            case RESOURCE:
-                return DataUtilities.fileToURL(resource.file());
-            case DIRECTORY:
-            case UNDEFINED:
-            default:
-                return null;
+                case RESOURCE:
+                    return URLs.fileToUrl(resource.file());
+                case DIRECTORY:
+                case UNDEFINED:
+                default:
+                    return null;
             }
         }
         return null;
